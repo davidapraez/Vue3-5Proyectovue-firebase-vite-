@@ -4,7 +4,8 @@
         <form @submit.prevent="handleSubmit">
             <input type="email" placeholder="ingrese email" v-model.trim="email">
             <input type="password" placeholder="Ingrese contraseña" v-model.trim="password">
-            <button type="submit" :disabled="userStore.loadingUser">Acceso</button>
+            <!-- <button type="submit" :disabled="userStore.loadingUser" @click="moastrarBoton">Acceso</button> -->
+            <button @click="moastrarBoton">Acceso</button>
         </form>
     </div>
 </template>
@@ -29,7 +30,9 @@ const handleSubmit=async()=>{
 
      //router.push('/')
 }
- 
+ const moastrarBoton=()=>{
+    console.log(email.value)
+ }
 
 </script>
 
