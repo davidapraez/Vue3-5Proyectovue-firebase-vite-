@@ -21,8 +21,10 @@ export const useUserStore=defineStore('userStore',{
                     password);
                     this.userData={email:user.email,uid:user.uid};
                     router.push('/');
+                    //Validaciones firebase 129 :// 17:29
             }catch(error){
-                console.log(error);
+                console.log(error.code);
+                return error.code
             }finally{
                 this.loadingUser=false
             }
@@ -38,9 +40,11 @@ export const useUserStore=defineStore('userStore',{
                 this.userData={email:user.email,uid:user.uid};
                 router.push('/');
             } catch (error) {
-                console.log(error);
+                console.log(error.code);
+                return error.code
+                
             }finally{
-                this.loadingUser=true
+                this.loadingUser=false
                 
             }
         },
