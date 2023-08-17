@@ -1,8 +1,10 @@
 import {defineStore} from 'pinia'
-import {createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut} from 'firebase/auth'
-import { auth } from '../firebaseConfig';
+import {createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateProfile} from 'firebase/auth'
+import { auth,db,storage } from '../firebaseConfig';
+import {doc,getDoc,setDoc} from 'firebase/firestore/lite'
 import router from '../router'
 import {useDatabaseStore} from './database'
+import { ref } from 'firebase/storage';
 
 
 export const useUserStore=defineStore('userStore',{
@@ -29,6 +31,49 @@ export const useUserStore=defineStore('userStore',{
                 this.loadingUser=false
             }
         },
+        async updateImg(imagen){
+            try {
+                console.log(imagen)
+                const storageRef=ref(storage,`${auth.currentUser}/perfil`)
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
+        async updateUser(displayName){
+            try {
+                await updateProfile(auth.currentUser,{
+                displayName,
+            })
+            this.setUser(auth.currentUser)
+            } catch (error) {
+                console.log(error)
+                return error.code
+            }
+            
+        },
+        async setUser(user){
+            const docRef=doc(db,'users',user.uid)
+            try {
+            
+                this.userData={
+                        email:user.email,
+                        uid:user.uid,
+                        displayName:user.displayName,
+                        photoURL:user.photoURL
+               
+         } 
+
+                await setDoc(docRef,this.userData)
+                    
+            } catch (error) {
+                console.log(error)
+            }
+                    
+                    
+    },
+
+
         async loginUser(email,password){
             this.loadingUser=true
             try {
@@ -37,8 +82,8 @@ export const useUserStore=defineStore('userStore',{
                     email,
                     password
                     );
-                this.userData={email:user.email,uid:user.uid};
-                router.push('/');
+                await this.setUser(user)
+            router.push('/');
             } catch (error) {
                 console.log(error.code);
                 return error.code
@@ -52,9 +97,9 @@ export const useUserStore=defineStore('userStore',{
             const databaseStore=useDatabaseStore();
             databaseStore.$reset();
             try {
-                await signOut(auth)
-                this.userData=null
                 router.push('/login')
+                await signOut(auth)
+                
             } catch (error) {
                 console.log(error);
             }finally{
@@ -63,13 +108,22 @@ export const useUserStore=defineStore('userStore',{
         },
         currentUser(){
             return new Promise((resolve,reject)=>{
-                const unsuscribe=onAuthStateChanged(auth,user=>{
+                const unsuscribe=onAuthStateChanged(auth,async(user)=>{
                     if(user){
-                        this.userData={email:user.email,uid:user.uid};
+                        console.log(user)
+                        //await this.setUser(user)
+                        this.userData={
+                            email:user.email,
+                            uid:user.uid,
+                            displayName:user.displayName,
+                            photoURL:user.photoURL
+                   
+             } 
                     }else{
+                        this.userData=null
                         const databaseStore=useDatabaseStore();
                         databaseStore.$reset();
-                        this.userData=null
+                        
                     }
                     resolve(user)
                 }, e=>reject(e))
