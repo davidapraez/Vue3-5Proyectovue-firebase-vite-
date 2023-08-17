@@ -1,5 +1,12 @@
 <template>
     <h1 class="text-center">Perfil de usuario</h1>
+    <!-- <p>{{userStore.userData}}</p> -->
+    <div class="text-center mb-5">
+        <a-avatar :src='userStore.userData.photoURL' :size="120" style="align-items: center;">
+        <template #icon><UserOutlined /></template>
+    </a-avatar>
+    </div>
+    
     <a-row>
         <a-col span="12" offset="6">
             <a-form name="basicPerfil" automcomplete="off" layout="vertical" :model="userStore.userData" @finish="handleFinish"
@@ -18,12 +25,15 @@
                   </a-upload>
                   <br>
                   <br>
-                 <a-form-item>
+                  <div class="text-center">
+                    <a-form-item>
                     <a-button type="primary" html-type="submit" :loading="userStore.loadingUser" :disabled="userStore.loadingUser">
                             Actualizar
                             
                     </a-button>
                 </a-form-item>
+                  </div>
+                 
             <!-- <input type="password" placeholder="Ingrese contraseña" v-model.trim="password"> -->
             <!-- <button type="submit" :disabled="userStore.loadingUser" @click="moastrarBoton">Acceso</button> -->
             <!-- <button @click="moastrarBoton">Acceso</button> -->
@@ -38,6 +48,7 @@ import { reactive, ref } from 'vue';
 import {useUserStore} from '../stores/user'
 import { message } from 'ant-design-vue';
 //import {useRouter} from 'vue-router'
+import { UserOutlined } from '@ant-design/icons-vue';
 const fileList=ref([])
 const userStore=useUserStore()
 
@@ -107,12 +118,12 @@ const handleSubmit=async()=>{
     fileList.value[0]
     const respuesta= await userStore.updateUser(userStore.userData.displayName)
     if(fileList.value[0]){
-        await userStore.updateImg(fileList.value[0])
+        const error=await userStore.updateImg(fileList.value[0])
+        if(error){
+            return message.error('Problemas al subir tu imagen')
+        }
+        message.success('Se actualizo tu informacion DisplayName')
     }
-    if(!respuesta){
-        return message.success('Se actualizo tu informacion DisplayName')
-    }
-    message.error('OCURRIO UN ERRRO al actualizar el perfil')
     // console.log(userStore.loadingUser)
 
 };
@@ -122,4 +133,8 @@ const handleFinishFailed = errors => {
 
 </script>
 
-
+<style>
+.mb-5{
+    margin: 2rem;
+}
+</style>

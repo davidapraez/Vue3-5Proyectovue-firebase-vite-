@@ -4,7 +4,7 @@ import { auth,db,storage } from '../firebaseConfig';
 import {doc,getDoc,setDoc} from 'firebase/firestore/lite'
 import router from '../router'
 import {useDatabaseStore} from './database'
-import { ref } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 
 export const useUserStore=defineStore('userStore',{
@@ -33,10 +33,17 @@ export const useUserStore=defineStore('userStore',{
         },
         async updateImg(imagen){
             try {
-                console.log(imagen)
-                const storageRef=ref(storage,`${auth.currentUser}/perfil`)
+                const storageRef=ref(storage,`${auth.currentUser.uid}/perfil`)
+                await uploadBytes(storageRef,imagen.originFileObj)
+                const photoURL=await getDownloadURL(storageRef)
+                await updateProfile(auth.currentUser,{
+                    photoURL,
+                })
+                this.setUser(auth.currentUser)
+                console.log(photoURL)
             } catch (error) {
                 console.log(error)
+                return error.code
             }
         },
 
