@@ -21,6 +21,9 @@
                     <a-button type="primary" html-type="submit" @click="router.push(`/editar/${item.id}`)">
                             Editar
                     </a-button>
+                    <a-button   @click="copiarPortapapeles(item.id)">
+                        Copiar
+                </a-button>
         </a-space>
      
     </template>
@@ -37,10 +40,31 @@ import { message } from 'ant-design-vue';
 import {useRouter} from 'vue-router'
 
 const router=useRouter()
-const databaseStore=useDatabaseStore()
+    const databaseStore=useDatabaseStore()
+
+const copiarPortapapeles=async(item)=>{
+
+    if(!navigator.clipboard){
+        return message.error("No se pudo copiar")
+    }
+    const path=`${window.location.href}${item}` 
+    
+    // const res = await navigator.clipboard.writeText(path)
+    // if(res){
+    //     message.error("No se pudo copiar al portapapeles")
+    // }else{
+    //     message.success("se copio con exito")
+    // }
+    navigator.clipboard.writeText(path)
+  .then(() => {
+    message.success("Se copio con exito")
+  })
+  .catch(err => {
+    message.error("No se pudo copiar")
+  })
+}
 
 const confirm=async(id)=>{
-   
     const error=await databaseStore.deleteUrl(id)
     if(!error){
         return message.success(`Se elimino la Url satisfactoriamente` , 3);

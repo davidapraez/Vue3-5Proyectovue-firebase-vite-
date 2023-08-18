@@ -31,31 +31,27 @@ export const useUserStore=defineStore('userStore',{
                 this.loadingUser=false
             }
         },
-        async updateImg(imagen){
+        async updateUser(displayName,imagen){
             try {
-                const storageRef=ref(storage,`${auth.currentUser.uid}/perfil`)
+                this.loadingUser=true;
+                if(imagen){
+                const storageRef=ref(storage,`perfiles/${auth.currentUser.uid}`)
                 await uploadBytes(storageRef,imagen.originFileObj)
                 const photoURL=await getDownloadURL(storageRef)
                 await updateProfile(auth.currentUser,{
-                    photoURL,
+                    photoURL,displayName,
                 })
-                this.setUser(auth.currentUser)
-                console.log(photoURL)
-            } catch (error) {
-                console.log(error)
-                return error.code
-            }
-        },
-
-        async updateUser(displayName){
-            try {
+                }
                 await updateProfile(auth.currentUser,{
-                displayName,
-            })
-            this.setUser(auth.currentUser)
+                    displayName,
+                })
+                
+                this.setUser(auth.currentUser)
             } catch (error) {
                 console.log(error)
                 return error.code
+            }finally{
+                this.loadingUser=false;
             }
             
         },

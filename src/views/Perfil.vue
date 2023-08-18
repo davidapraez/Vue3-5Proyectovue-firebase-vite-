@@ -98,33 +98,13 @@ const formState=reactive({
     password:'asdass',
 });
 
-// const email=ref('omar@gmail.com')
-// const password=ref('asdass')
-
-
-const handleSubmit=async()=>{
-    if(!formState.email || formState.password.length<6){
-        return alert("La contraseña es muy pequeña")
-    }
-    
-     //router.push('/')
-}
-
-
- const moastrarBoton=()=>{
-    console.log(email.value)
- }
  const handleFinish= async() => {
     fileList.value[0]
-    const respuesta= await userStore.updateUser(userStore.userData.displayName)
-    if(fileList.value[0]){
-        const error=await userStore.updateImg(fileList.value[0])
-        if(error){
-            return message.error('Problemas al subir tu imagen')
-        }
-        message.success('Se actualizo tu informacion DisplayName')
+    const error= await userStore.updateUser(userStore.userData.displayName,fileList.value[0])
+    if(!error){
+        return message.success('Se actualizo tu perfil')
     }
-    // console.log(userStore.loadingUser)
+    message.error('Error')
 
 };
 const handleFinishFailed = errors => {
